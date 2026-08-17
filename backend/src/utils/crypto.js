@@ -1,14 +1,19 @@
 const crypto = require("crypto");
 
 const ALGO = "aes-256-gcm";
-const KEY = Buffer.from(process.env.CREDENTIAL_ENCRYPTION_KEY, "hex"); // 32 bytes
 const IV_LENGTH = 12;
 
-function encrypt(text) {
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv(ALGO, KEY, iv);
+function getKey() {
+  const rawKey = process.env.CREDENTIAL_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY || "default_restropro_credential_encryption_key_32";
+  return crypto.createHash("sha256").update(String(rawKey)).digest();
+}
 
-  let encrypted = cipher.update(text, "utf8", "hex");
+function encrypt(text) {
+  if (!text) return text;
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGO, getKey(), iv);
+
+  let encrypted = cipher.update(String(text), "utf8", "hex");
   encrypted += cipher.final("hex");
 
   const tag = cipher.getAuthTag();
@@ -21,9 +26,12 @@ function encrypt(text) {
 }
 
 function decrypt(encrypted) {
+  if (!encrypted || typeof encrypted !== "object" || !encrypted.iv || !encrypted.content || !encrypted.tag) {
+    return encrypted;
+  }
   const decipher = crypto.createDecipheriv(
     ALGO,
-    KEY,
+    getKey(),
     Buffer.from(encrypted.iv, "hex")
   );
 

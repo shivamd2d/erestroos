@@ -1,4 +1,4 @@
-export function applyDiscount(amount, value) {
+function applyDiscount(amount, value) {
   const discount = Number(value) || 0;
 
   if (discount <= 0) return amount;
@@ -11,3 +11,4 @@ export function applyDiscount(amount, value) {
   return Math.max(Math.round(finalAmount), 0); // never below 0
 }
 
+module.exports = { applyDiscount };
