@@ -51,8 +51,6 @@ io.on("connection", (socket)=>{
     })
 });
 
-httpServer.listen(PORT);
-
-// app.listen(PORT, ()=>{
-//     console.log(`Server Started on PORT: ${PORT}`);
-// });
+httpServer.listen(PORT, "0.0.0.0", () => {
+    console.log(`⚡️ RestroPRO Server is live and listening on port ${PORT}`);
+});
